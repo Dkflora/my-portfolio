@@ -1,28 +1,26 @@
-is this in good order? because ci/cd pipeline is failing build, please assist me to fix it: name: CI
+name: CI
+
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
- 
+
 jobs:
-  
   build:
-   
     runs-on: ubuntu-latest 
     steps:
       - uses: actions/checkout@v4
+      
       - name: Build image
-        run: | 
-              docker build -t ${{secrets.REGISTRY_USER}}/portfolio:${{github.run_number}} .
-              docker build -t ${{secrets.REGISTRY_USER}}/portfolio .
+        run: docker build -t ${{secrets.REGISTRY_USER}}/portfolio:${{github.run_number}} .
+      
       - name: Push image 
         run: |
-            docker login -u ${{secrets.REGISTRY_USER}} -p ${{secrets.REGISTRY_PASS}}
-            docker push ${{secrets.REGISTRY_USER}}/portfolio:${{github.run_number}}
-            docker push ${{secrets.REGISTRY_USER}}/portfolio
+          docker login -u ${{secrets.REGISTRY_USER}} -p ${{secrets.REGISTRY_PASS}}
+          docker push ${{secrets.REGISTRY_USER}}/portfolio:${{github.run_number}}
 
-deploy:
+  deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -32,8 +30,6 @@ deploy:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
-         # port: ${{ secrets.PORT }}
           script: |
-                  docker rm -f resume
-                  docker run -d --name resume -p 8080:5001 ${{secrets.REGISTRY_USER}}/portfolio:${{github.run_number}}
-
+            docker rm -f resume || true
+            docker run -d --name resume -p 8080:5001 ${{secrets.REGISTRY_USER}}/portfolio:${{github.run_number}}
