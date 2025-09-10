@@ -1,4 +1,4 @@
-name: CI
+is this in good order? because ci/cd pipeline is failing build, please assist me to fix it: name: CI
 on:
   push:
     branches: [ "main" ]
@@ -36,3 +36,4 @@ deploy:
           script: |
                   docker rm -f resume
                   docker run -d --name resume -p 8080:5001 ${{secrets.REGISTRY_USER}}/portfolio:${{github.run_number}}
+
